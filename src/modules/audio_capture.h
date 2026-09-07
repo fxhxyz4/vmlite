@@ -2,5 +2,5 @@
 
 #include "../../external/miniaudio.h"
 
-bool startAudioEngine(float gain);
 void stopAudioEngine();
+bool startAudioEngine(float gain);
