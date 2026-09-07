@@ -6,7 +6,7 @@
 
   ***vmlite** is a lightweight, real-time system audio amplifier for Linux written in C++17. It decouples audio streams via a virtual PipeWire/PulseAudio null-sink and applies clean DSP gain without system-wide feedback loops or latency.*
 
-  [![Version](https://img.shields.io/badge/v1.0.0-10B981?logo=git&logoColor=black&label=version&labelColor=ffffff&color=10B981)](https://github.com/fxhxyz4/vmlite/releases)
+  [![Version](https://img.shields.io/badge/v2.0.0-10B981?logo=git&logoColor=black&label=version&labelColor=ffffff&color=10B981)](https://github.com/fxhxyz4/vmlite/releases)
   [![Language](https://img.shields.io/badge/C%2B%2B17-00D2FF?logo=cplusplus&logoColor=black&label=language&labelColor=ffffff&color=00BAE2)](https://isocpp.org/)
   [![Platform](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black&label=platform&labelColor=ffffff&color=FCC624)](https://www.kernel.org/)
   [![Audio](https://img.shields.io/badge/PipeWire%20%2F%20PulseAudio-8B5CF6?logo=pipewire&logoColor=white&label=audio&labelColor=ffffff&color=8B5CF6)](https://pipewire.org/)
@@ -50,6 +50,7 @@ sudo dnf install gcc-c++ make pipewire-pulseaudio pulseaudio-utils
 ```bash
 git clone https://github.com/fxhxyz4/vmlite.git
 cd ./vmlite && make
+chmod +x ./run.sh && ./run.sh 200
 ```
 
 #### Option 2: Download Pre-built Binary
