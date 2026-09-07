@@ -58,7 +58,7 @@ chmod +x ./run.sh && ./run.sh 200
 Download the latest compiled release from the **[Releases](https://github.com/fxhxyz4/vmlite/releases)** page, extract it, and make sure `run.sh` is executable:
 
 ```bash
-sudo chmod +x ./run.sh
+chmod +x ./run.sh
 ```
 
 ---
