@@ -9,14 +9,14 @@
 
 using namespace std;
 
-static ma_device g_audioDevice;
 static float g_gain = 1.0f;
+static ma_device g_audioDevice;
 static bool g_isInitialized = false;
 
 void dataCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount) {
     if (pOutput == NULL || pInput == NULL) return;
-
     size_t sampleCount = frameCount * pDevice->playback.channels;
+
     const float* pInputSamples = (const float*)pInput;
     float* pOutputSamples = (float*)pOutput;
 
@@ -32,6 +32,7 @@ bool startAudioEngine(float gain) {
 
     ma_backend backends[] = {
         ma_backend_alsa,
+        ma_backend_pulseaudio,
         ma_backend_jack
     };
 
@@ -56,6 +57,7 @@ bool startAudioEngine(float gain) {
     if (ma_device_start(&g_audioDevice) != MA_SUCCESS) {
         print("[ERROR] Failed to start audio device.");
         ma_device_uninit(&g_audioDevice);
+
         return false;
     }
 
@@ -68,5 +70,7 @@ void stopAudioEngine() {
     g_isInitialized = false;
 
     ma_device_stop(&g_audioDevice);
+
+    // miniaudio safely handles uninit relative to dataCallback completion
     ma_device_uninit(&g_audioDevice);
 }

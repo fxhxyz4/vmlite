@@ -1,43 +1,60 @@
 #!/usr/bin/env bash
-
 set -e
 
-GAIN_PERCENT="${1:-500}"
 SINK_NAME="vmlite_sink"
-BINARY="./build/vmlite"
+SOURCE_NAME="vmlite_source"
+GAIN_PERCENT="${1:-500}"
 
-[ -f "$BINARY" ] || { echo "[vmlite] Building..."; make; }
+DEFAULT_SINK=$(pactl get-default-sink 2>/dev/null || true)
+DEFAULT_SOURCE=$(pactl get-default-source 2>/dev/null || true)
+
+echo "[*] Current default sink: $DEFAULT_SINK"
+
+echo "[*] Creating virtual sink and source via pw-loopback..."
+pw-loopback \
+    --capture-props="media.class=Audio/Sink node.name=${SINK_NAME} node.description=\"VMLite Virtual Sink\"" \
+    --playback-props="media.class=Audio/Source node.name=${SOURCE_NAME} node.description=\"VMLite Source\"" &
+PW_PID=$!
 
 cleanup() {
-    echo -e "\n[vmlite] Restoring original route..."
-    pactl unload-module module-null-sink 2>/dev/null || true
-    echo "[vmlite] Cleaned up."
+    echo -e "\n[*] Restoring audio settings..."
+    if [ -n "$DEFAULT_SINK" ]; then
+        pactl set-default-sink "$DEFAULT_SINK" 2>/dev/null || true
+    fi
+    if [ -n "$DEFAULT_SOURCE" ]; then
+        pactl set-default-source "$DEFAULT_SOURCE" 2>/dev/null || true
+    fi
+    if [ -n "$PW_PID" ]; then
+        kill "$PW_PID" 2>/dev/null || true
+    fi
     exit 0
 }
+trap cleanup EXIT INT TERM
 
-trap cleanup INT TERM EXIT
+echo "[*] Waiting for PipeWire virtual nodes to appear..."
+TIMEOUT=5
+ELAPSED=0
+NODE_FOUND=false
 
-pactl load-module module-null-sink sink_name="${SINK_NAME}" sink_properties=device.description="${SINK_NAME}" > /dev/null 2>&1 || true
-pactl set-default-sink "${SINK_NAME}" 2>/dev/null || true
+while [ $ELAPSED -lt $TIMEOUT ]; do
+    if pw-link -o | grep -q "${SINK_NAME}"; then
+        NODE_FOUND=true
+        break
+    fi
+    sleep 0.2
+    ELAPSED=$((ELAPSED + 1))
+done
 
-"$BINARY" -g "$GAIN_PERCENT" &
+if [ "$NODE_FOUND" = false ]; then
+    echo "[!] Warning: vmlite nodes did not appear in time, proceeding anyway..."
+else
+    echo "[*] Virtual nodes successfully detected!"
+fi
+
+pactl set-default-source "${SOURCE_NAME}" 2>/dev/null || true
+
+echo "[*] Starting vmlite with ${GAIN_PERCENT}% gain..."
+./build/vmlite -g "$GAIN_PERCENT" &
 VMLITE_PID=$!
-
-sleep 1.2
-
-PHYSICAL_OUT=$(pw-link -o | grep -E "analog-stereo|Headphones" | head -n 1 | cut -d':' -f1)
-VMLITE_OUT_NODE=$(pw-link -o | grep "vmlite" | head -n 1 | cut -d':' -f1)
-VMLITE_IN_NODE=$(pw-link -i | grep "vmlite" | head -n 1 | cut -d':' -f1)
-
-if [ -n "$VMLITE_IN_NODE" ]; then
-    pw-link "${SINK_NAME}.monitor_FL" "${VMLITE_IN_NODE}:input_FL" 2>/dev/null || true
-    pw-link "${SINK_NAME}.monitor_FR" "${VMLITE_IN_NODE}:input_FR" 2>/dev/null || true
-fi
-
-if [ -n "$PHYSICAL_OUT" ] && [ -n "$VMLITE_OUT_NODE" ]; then
-    pw-link "${VMLITE_OUT_NODE}:output_FL" "${PHYSICAL_OUT}:playback_FL" 2>/dev/null || true
-    pw-link "${VMLITE_OUT_NODE}:output_FR" "${PHYSICAL_OUT}:playback_FR" 2>/dev/null || true
-    echo "[vmlite] Linked pipeline successfully!"
-fi
 
 wait $VMLITE_PID
