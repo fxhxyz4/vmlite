@@ -6,7 +6,7 @@
 
   ***vmlite** is a lightweight, real-time system audio amplifier for Linux written in C++17. It decouples audio streams via a virtual PipeWire/PulseAudio null-sink and applies clean DSP gain without system-wide feedback loops or latency.*
 
-  [![Version](https://img.shields.io/badge/v2.0.0-10B981?logo=git&logoColor=black&label=version&labelColor=ffffff&color=10B981)](https://github.com/fxhxyz4/vmlite/releases)
+  [![Version](https://img.shields.io/badge/v2.0.1-10B981?logo=git&logoColor=black&label=version&labelColor=ffffff&color=10B981)](https://github.com/fxhxyz4/vmlite/releases)
   [![Language](https://img.shields.io/badge/C%2B%2B17-00D2FF?logo=cplusplus&logoColor=black&label=language&labelColor=ffffff&color=00BAE2)](https://isocpp.org/)
   [![Platform](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black&label=platform&labelColor=ffffff&color=FCC624)](https://www.kernel.org/)
   [![Audio](https://img.shields.io/badge/PipeWire%20%2F%20PulseAudio-8B5CF6?logo=pipewire&logoColor=white&label=audio&labelColor=ffffff&color=8B5CF6)](https://pipewire.org/)
@@ -20,8 +20,8 @@
 ### Features
 
 * **Zero-Latency DSP Processing:** Operates directly on `float32` sample buffers with minimal buffer overhead.
-* **Hard Clipping Protection:** Built-in `clamp` protection prevents audio distortion and crackling.
 * **No Loopback / Feedback Artifacts:** Isolated capture and playback devices decoupled via a virtual `vmlite_sink`.
+* **Smooth Soft-Limiting:** Built-in `tanh` wave-shaper prevents harsh digital clipping and crackling at high amplification levels.
 
 ---
 
@@ -30,7 +30,7 @@
 ```bash
 sudo pacman -S gcc make pipewire-pulse
 ```
-  
+
 * **Debian based:**
 ```bash
 sudo apt install build-essential pipewire-pulse pulseaudio-utils
@@ -93,6 +93,21 @@ Options:
 > **Note:** To stop vmlite and restore original audio routes, press `Ctrl+C`.
 
 
+---
+
+### Running as a Systemd Service
+___If you want `vmlite` to run automatically as a background user service, you can use the provided systemd configuration file.___
+__Create the systemd user directory if it doesn't exist:__
+  ```bash
+  mkdir -p ~/.config/systemd/user/
+  cp vmlite.service ~/.config/systemd/user/
+
+  systemctl --user daemon-reload
+  systemctl --user enable --now vmlite
+
+  systemctl --user status vmlite
+  journalctl --user -u vmlite -f
+  ```
 ---
 
 ### Acknowledgments & Credits
