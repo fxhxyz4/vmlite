@@ -5,7 +5,7 @@
 // 1.0f - basic DSP
 struct Config {
     float gain = 1.0f;
-    bool showHelp = false;
 };
 
+void checkGainWarnings(float percent);
 Config parseArgs(int argc, char* argv[]);

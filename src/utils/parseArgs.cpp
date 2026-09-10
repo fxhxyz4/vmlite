@@ -6,6 +6,14 @@
 
 using namespace std;
 
+void checkGainWarnings(float percent) {
+    if (percent < 0.0f) {
+        cerr << "[WARN] Negative gain (" << percent << "%) will invert the signal phase!\n";
+    } else if (percent > 1000.0f) {
+        cerr << "[WARN] Excessively high gain (" << percent << "%) may cause severe distortion.\n";
+    }
+}
+
 Config parseArgs(int argc, char* argv[]) {
     Config config;
 
@@ -20,22 +28,39 @@ Config parseArgs(int argc, char* argv[]) {
         if (arg == "--help" || arg == "-h") {
             printHelp();
             exit(0);
-        } else if (arg == "--gain" || arg == "-g") {
-            if (i + 1 < argc) {
-                try {
-                    float percent = stof(argv[++i]);
-                    config.gain = percent / 100.0f;
-                } catch (const exception& e) {
-                    print("[ERROR] Invalid number format for " + arg);
-                    exit(1);
-                }
-            } else {
+        }
+
+        if (arg == "-v" || arg == "--version") {
+            printVersion();
+            exit(0);
+        }
+
+        if (arg == "--gain" || arg == "-g") {
+            if (i + 1 >= argc) {
                 print("[ERROR] Missing percentage value for " + arg);
                 exit(1);
             }
-        } else if (arg == "-v" || arg == "--version") {
-            printVersion();
-            exit(0);
+
+            try {
+                float percent = stof(argv[++i]);
+                checkGainWarnings(percent);
+
+                config.gain = percent / 100.0f;
+            } catch (const exception& e) {
+                print("[ERROR] Invalid number format for " + arg);
+                exit(1);
+            }
+            continue;
+        }
+
+        if (!arg.empty() && arg[0] == '-') {
+            print("[ERROR] Unknown option: " + arg);
+            print("[INFO] Use vmlite --help to see available options.");
+            exit(1);
+        } else {
+            print("[ERROR] Unexpected argument: " + arg);
+            print("[INFO] Use vmlite --help to see available options.");
+            exit(1);
         }
     }
 
