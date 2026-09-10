@@ -1,5 +1,5 @@
 #ifndef PROJECT_VERSION
-#define PROJECT_VERSION "2.0.0"
+#define PROJECT_VERSION "2.0.1"
 #endif
 
 #include <iostream>

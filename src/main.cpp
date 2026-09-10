@@ -34,13 +34,10 @@ int main(int argc, char* argv[]) {
 
         print("[INFO] VMLite is running!");
         print("[INFO] Route Spotify or other App to 'vmlite_sink' in pavucontrol.");
-        print("[INFO] Press ENTER or Ctrl+C to stop...");
+        print("[INFO] Press Ctrl+C to stop...");
 
         while (g_running) {
-            this_thread::sleep_for(chrono::milliseconds(100));
-            if (cin.rdbuf()->in_avail() > 0) {
-                break;
-            }
+            this_thread::sleep_for(chrono::milliseconds(200));
         }
 
         print("[INFO] Stopping audio engine...");
