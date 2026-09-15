@@ -1,23 +1,30 @@
 #!/usr/bin/env bash
 set -e
 
+# ANSI colors
+COLOR_RESET="\033[0m"
+COLOR_CYAN="\033[96m"
+COLOR_GREEN="\033[92m"
+COLOR_WARN="\033[93m"
+COLOR_BOLD="\033[1m"
+
 SINK_NAME="vmlite_sink"
 SOURCE_NAME="vmlite_source"
-GAIN_PERCENT="${1:-500}"
+GAIN_PERCENT="${1:-1000}"
 
 DEFAULT_SINK=$(pactl get-default-sink 2>/dev/null || true)
 DEFAULT_SOURCE=$(pactl get-default-source 2>/dev/null || true)
 
-echo "[*] Current default sink: $DEFAULT_SINK"
+echo -e "${COLOR_CYAN}[*]${COLOR_RESET} Current default sink: ${COLOR_BOLD}${DEFAULT_SINK}${COLOR_RESET}"
 
-echo "[*] Creating virtual sink and source via pw-loopback..."
+echo -e "${COLOR_CYAN}[*]${COLOR_RESET} Creating virtual sink and source via pw-loopback..."
 pw-loopback \
     --capture-props="media.class=Audio/Sink node.name=${SINK_NAME} node.description=\"VMLite Virtual Sink\"" \
     --playback-props="media.class=Audio/Source node.name=${SOURCE_NAME} node.description=\"VMLite Source\"" &
 PW_PID=$!
 
 cleanup() {
-    echo -e "\n[*] Restoring audio settings..."
+    echo -e "\n${COLOR_CYAN}[*]${COLOR_RESET} Restoring audio settings..."
     if [ -n "$DEFAULT_SINK" ]; then
         pactl set-default-sink "$DEFAULT_SINK" 2>/dev/null || true
     fi
@@ -31,7 +38,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "[*] Waiting for PipeWire virtual nodes to appear..."
+echo -e "${COLOR_CYAN}[*]${COLOR_RESET} Waiting for PipeWire virtual nodes to appear..."
 TIMEOUT=5
 ELAPSED=0
 NODE_FOUND=false
@@ -46,15 +53,16 @@ while [ $ELAPSED -lt $TIMEOUT ]; do
 done
 
 if [ "$NODE_FOUND" = false ]; then
-    echo "[!] Warning: vmlite nodes did not appear in time, proceeding anyway..."
+    echo -e "${COLOR_WARN}[!] Warning: vmlite nodes did not appear in time, proceeding anyway...${COLOR_RESET}"
 else
-    echo "[*] Virtual nodes successfully detected!"
+    echo -e "${COLOR_GREEN}[*] Virtual nodes successfully detected!${COLOR_RESET}"
 fi
 
 pactl set-default-source "${SOURCE_NAME}" 2>/dev/null || true
 
-echo "[*] Starting vmlite with ${GAIN_PERCENT}% gain..."
-./build/vmlite -g "$GAIN_PERCENT" &
+echo -e "${COLOR_CYAN}[*]${COLOR_RESET} Starting vmlite with ${COLOR_BOLD}${GAIN_PERCENT}%${COLOR_RESET} gain..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+"$SCRIPT_DIR/build/vmlite" -g "$GAIN_PERCENT" &
 VMLITE_PID=$!
 
-wait $VMLITE_PID
+wait $VMLITE_PID || true
