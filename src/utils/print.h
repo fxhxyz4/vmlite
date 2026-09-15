@@ -4,7 +4,13 @@
 
 using namespace std;
 
+enum class LogLevel {
+    Info,
+    Warn,
+    Error
+};
+
 void printHelp();
 void printBanner();
 void printVersion();
-void print(const string& msg);
+void printLog(LogLevel level, const string& message);
