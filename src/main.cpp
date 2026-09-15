@@ -25,31 +25,31 @@ int main(int argc, char* argv[]) {
         signal(SIGINT, signalHandler);
         signal(SIGTERM, signalHandler);
 
-        print("[INFO] Initializing VMLite audio engine...");
+        printLog(LogLevel::Info, "Initializing VMLite audio engine...");
 
         if (!startAudioEngine(config.gain)) {
-            print("[ERROR] Could not start audio engine.");
+            printLog(LogLevel::Error, "Could not start audio engine.");
             return 1;
         }
 
-        print("[INFO] VMLite is running!");
-        print("[INFO] Route Spotify or other App to 'vmlite_sink' in pavucontrol.");
-        print("[INFO] Press Ctrl+C to stop...");
+        printLog(LogLevel::Info, "VMLite is running!");
+        printLog(LogLevel::Info, "Route Spotify or other App to 'vmlite_sink' in pavucontrol.");
+        printLog(LogLevel::Info, "Press Ctrl+C to stop...");
 
         while (g_running) {
             this_thread::sleep_for(chrono::milliseconds(200));
         }
 
-        print("[INFO] Stopping audio engine...");
+        printLog(LogLevel::Info, "Stopping audio engine...");
         stopAudioEngine();
-        print("[INFO] VMLite closed cleanly.");
+        printLog(LogLevel::Info, "VMLite closed cleanly.");
 
     } catch (const exception& e) {
-        print(string("[ERROR] Exception caught: ") + e.what());
+        printLog(LogLevel::Error, string("Exception caught: ") + e.what());
         stopAudioEngine();
         return 1;
     } catch (...) {
-        print("[ERROR] Unknown exception occurred.");
+        printLog(LogLevel::Error, "Unknown exception occurred.");
         stopAudioEngine();
         return 1;
     }
