@@ -1,5 +1,5 @@
 #ifndef PROJECT_VERSION
-#define PROJECT_VERSION "2.0.1"
+#define PROJECT_VERSION "2.0.2"
 #endif
 
 #include <iostream>
@@ -7,45 +7,57 @@
 
 using namespace std;
 
+const string COLOR_ERROR = "\033[91m";
+const string COLOR_RESET = "\033[0m";
+const string COLOR_WARN = "\033[93m";
+const string COLOR_INFO = "\033[94m";
+const string COLOR_CYAN = "\033[96m";
+const string COLOR_BOLD = "\033[1m";
+
 const string bannerText = R"(
 [0;36;40m█▀▀[0;96;40m█[0;37;40m  [0;36;40m█▀▀[0;96;40m█[0;37;40m [0;36;40m▄▀▀▀▀▀[0;96;40m▄[0;36;40m▀▀▀▀▀▄[0;37;40m [0;36;40m█▀▀▀[0;96;46m░[0;37;40m    [0;36;40m█▀▀▀[0;96;46m░[0;37;40m [0;36;40m█▀▀▀▀▀▀▀[0;96;46m░[0;37;40m  [0;36;40m▄▀▀▀▀▀▀▀[0;96;46m░[0m
 [0;36;40m█[0;90;40m┼┼[0;96;40m█[0;37;40m  [0;36;40m█[0;90;40m┼┼[0;96;40m█[0;37;40m [0;96;46m░[0;90;40m┼┼[0;96;40m▄▄[0;36;40m▄[0;90;40m┼[0;36;40m▄[0;96;40m▄▄[0;90;40m┼┼[0;96;46m░[0;37;40m [0;96;46m░[0;90;40m┼┼┼[0;96;46m▒[0;37;40m    [0;36;40m█[0;90;40m┼┼┼[0;96;46m▒[0;37;40m [0;96;46m░[0;90;40m┼┼┼┼┼┼┼[0;96;46m▓[0;37;40m [0;36;40m█[0;90;40m┼┼┼[0;96;40m▄▄▄▄▄[0;37;46m▄[0m
-[0;36;40m█[0;90;40m┼┼[0;96;40m█[0;37;40m  [0;36;40m█┼[0;90;40m┼[0;96;40m█[0;37;40m [0;96;46m░[0;90;40m┼[0;36;40m┼[0;96;40m█[0;37;40m [0;36;40m█┼[0;96;46m▒[0;37;40m [0;96;46m░[0;90;40m┼[0;36;40m┼[0;96;46m▒[0;37;40m [0;96;46m▒[0;90;40m┼┼┼[0;96;46m▓[0;37;40m    [0;96;46m░[0;90;40m┼┼[0;36;40m┼[0;96;46m▓[0;37;40m [0;96;40m▀▀[0;96;46m░[0;90;40m┼┼[0;36;40m┼[0;96;40m█▀▀[0;37;40m [0;96;46m░[0;90;40m┼┼┼┼[0;36;40m┼[0;96;46m▒[0;37;40m   [0m
+[0;36;40m█[0;90;40m┼┼[0;96;40m█[0;37;40m  [0;36;40m█┼[0;90;40m┼[0;96;40m█[0;37;40m [0;96;46m░[0;90;40m┼[0;36;40m┼[0;96;40m█[0;37;40m [0;36;40m█┼[0;96;46m▒[0;37;40m [0;96;46m░[0;90;40m┼[0;36;40m┼[0;96;46m▒[0;37;40m [0;96;46m▒[0;90;40m┼┼┼[0;96;46m▓[0;37;40m    [0;96;46m░[0;90;40m┼┼[0;36;40m┼[0;96;46m▓[0;37;40m [0;36;40m▀▀[0;96;46m░[0;90;40m┼┼[0;36;40m┼[0;36;40m█▀▀[0;37;40m [0;96;46m░[0;90;40m┼┼┼┼[0;36;40m┼[0;96;46m▒[0;37;40m   [0m
 [0;36;40m█[0;90;40m┼┼┼[0;36;40m▀▄▀[0;37;40m┼[0;36;40m┼[0;37;46m▄[0;37;40m [0;96;46m▒[0;36;40m┼[0;37;40m┼[0;96;40m█[0;37;40m [0;36;40m▀[0;96;40m▀[0;37;40m▀ [0;96;46m▒[0;36;40m┼[0;37;40m┼[0;96;46m▓[0;37;40m [0;96;46m▓[0;90;40m┼┼┼[0;96;40m█[0;36;40m▄▄▄[0;37;40m [0;96;46m▒[0;90;40m┼[0;36;40m┼[0;37;40m┼[0;96;40m█[0;37;40m   [0;96;46m▒[0;90;40m┼[0;36;40m┼[0;37;40m┼[0;96;40m█[0;37;40m   [0;96;46m▓[0;90;40m┼┼┼[0;36;40m▄▄[0;37;46m▀[0;36;40m▄▄[0;96;40m▄[0m
 [0;37;40m [0;36;40m▀▄[0;90;40m┼┼[0;36;40m┼[0;37;40m┼▄[0;97;40m▀[0;37;40m  [0;96;46m▓[0;37;40m┼[0;97;40m┼[0;37;46m▄[0;37;40m     [0;96;46m▓[0;37;40m┼[0;97;40m┼[0;37;46m▄[0;37;40m [0;96;40m▀▄[0;90;40m┼┼[0;36;40m┼[0;37;40m┼[0;97;40m┼[0;37;46m▄[0;37;40m [0;96;46m▓[0;36;40m┼[0;37;40m┼[0;97;40m┼[0;37;46m▄[0;37;40m   [0;96;46m▓[0;36;40m┼[0;37;40m┼[0;97;40m┼[0;37;46m▄[0;37;40m   [0;36;40m▀▄[0;90;40m┼┼┼┼[0;36;40m┼[0;37;40m┼[0;97;40m┼[0;37;46m▄[0m
 [0;37;40m   [0;96;40m▀▀▀▀[0;37;40m    [0;96;40m▀▀[0;37;40m▀[0;97;40m▀[0;37;40m     [0;96;40m▀▀[0;37;40m▀[0;97;40m▀[0;37;40m   [0;96;40m▀▀▀▀[0;37;40m▀[0;97;40m▀[0;37;40m [0;96;40m▀▀▀[0;37;40m▀[0;97;40m▀[0;37;40m   [0;96;40m▀▀▀[0;37;40m▀[0;97;40m▀[0;37;40m     [0;96;40m▀▀▀▀▀▀[0;37;40m▀[0;97;40m▀[0m
 )";
 
-const string helpText = R"(
-Usage: vmlite [OPTIONS]
-
-Options:
-  -g, --gain <percent>    Set audio amplification percentage (default: 100)
-                          Example: 150 boosts audio by +50%
-
-  -v, --version           Show version information and exit
-  -h, --help              Show this help message and exit
-
-Examples:
-  ./vmlite -g 150         Run with 150% volume boost
-  ./vmlite --gain 200     Run with 200% volume boost (2x amplification)
-  ./vmlite -v             Print vmlite version
-)";
-
-const string versionText = "vmlite version " PROJECT_VERSION;
-
 void printVersion() {
-    cout << versionText << endl;
+    cout << COLOR_CYAN << "vmlite version " << COLOR_BOLD << PROJECT_VERSION << COLOR_RESET << endl;
 }
 
 void printHelp() {
-    cout << helpText << endl;
+    cout << COLOR_BOLD << "Usage:" << COLOR_RESET << "\n"
+         << "  vmlite [options]\n\n"
+         << COLOR_BOLD << "Options:" << COLOR_RESET << "\n"
+         << "  " << COLOR_CYAN << "--gain <val>" << COLOR_RESET << "  Set audio gain (e.g. 200)\n"
+         << "  " << COLOR_CYAN << "--help" << COLOR_RESET << "        Show help information\n"
+         << "  " << COLOR_CYAN << "--version" << COLOR_RESET << "     Show version\n";
 }
 
 void printBanner() {
     cout << bannerText << endl;
 }
 
-void print(const string& msg) {
-    cout << msg << endl;
+void printLog(LogLevel level, const string& message) {
+    string color;
+    string prefix;
+
+    switch (level) {
+        case LogLevel::Info:
+            color = COLOR_INFO;
+            prefix = "[INFO]";
+            break;
+        case LogLevel::Warn:
+            color = COLOR_WARN;
+            prefix = "[WARN]";
+            break;
+        case LogLevel::Error:
+            color = COLOR_ERROR;
+            prefix = "[ERROR]";
+            break;
+    }
+
+    cout << color << prefix << COLOR_RESET << " " << message << endl;
 }
