@@ -49,13 +49,13 @@ bool startAudioEngine(float gain) {
 
     if (ma_device_init_ex(backends, sizeof(backends)/sizeof(backends[0]), NULL, &deviceConfig, &g_audioDevice) != MA_SUCCESS) {
         if (ma_device_init(NULL, &deviceConfig, &g_audioDevice) != MA_SUCCESS) {
-            print("[ERROR] Failed to initialize audio device.");
+            printLog(LogLevel::Error, "Failed to initialize audio device.");
             return false;
         }
     }
 
     if (ma_device_start(&g_audioDevice) != MA_SUCCESS) {
-        print("[ERROR] Failed to start audio device.");
+        printLog(LogLevel::Error, "Failed to start audio device.");
         ma_device_uninit(&g_audioDevice);
 
         return false;
