@@ -85,7 +85,7 @@ To view all available options directly from the C++ binary:
 Usage: vmlite [options]
 
 Options:
-  -g, --gain <percent>    Set gain in percentage (e.g., 200). Default: 100%
+  -g, --gain <percent>    Set gain in percentage (e.g., 300). Default: 100%
   -h, --help              Display this help message and exit
   -v, --version           Print version information
 ```
