@@ -1,5 +1,6 @@
 # Releases
 vmlite-*.tar.gz
+release_package/
 
 # Prerequisites
 *.d
